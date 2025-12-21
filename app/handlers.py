@@ -67,3 +67,10 @@ async def handle_mainmenu(event: Message):
             await event.respond(text)
         else:
             await event.respond('sorry')
+    elif manage_state and manage_state[-1] == 'future':
+        user = select_user(event.sender_id)
+        if user and user[2] and user[2] != None:
+            text = today_weather(user[2], days=7)
+            await event.respond(text)
+        else:
+            await event.respond('sorry')

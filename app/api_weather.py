@@ -2,15 +2,7 @@ import requests
 import jdatetime
 from datetime import datetime
 
-def convert_to_jalali(iso_time: str) -> str:
-    
-    time_obj = datetime.fromisoformat(iso_time)
-    
-    jalali_date = jdatetime.date.fromgregorian(date=time_obj.date())
-    
-    time_str = time_obj.strftime("%H:%M")
-    
-    return f"{jalali_date} ساعت {time_str}"
+
 
 weather_codes = {
     0: "☀️ صاف",
@@ -58,7 +50,7 @@ def format_today_weather(data):
     
     today = data['current_weather']
     time_temp = today['time']
-    time = convert_to_jalali(time_temp)
+    time_me = (time_temp)
     time_of_day = "روز" if today['is_day'] == 1 else "شب"
     time_emoji = "🌞" if today['is_day'] == 1 else "🌙"
     
@@ -74,7 +66,7 @@ def format_today_weather(data):
     precipitation_probability = today_also['precipitation_probability_max'][0]
     
     text = f"""
-{time_emoji} زمان: {time_of_day} - {time}
+{time_emoji} زمان: {time_of_day} - {time_me}
 🌡️ دما: {temperature}°C
 {feels_emo} دمای احساس شده: {feels_like_value}°C
 وضعیت هوا: {today_weather_about}
@@ -100,7 +92,30 @@ def feels_tempurture(temperature, wind, humidity):
              temperature
     return round(temperature , 1)
 
-def today_weather(input_user:str):
+def format_future_weather(data, days=7):
+   
+    future_text = "📅 پیش‌بینی هوا برای روزهای آینده:\n"
+    
+    daily = data['daily']
+    total_days = len(daily['time'])
+    days = min(days, total_days)
+    
+    for i in range(days):
+        date_iso = daily['time'][i]
+        date_jalali = (date_iso)
+
+        temp_max = round(daily['apparent_temperature_max'][i], 1)
+        temp_min = round(daily['apparent_temperature_min'][i], 1)
+        precipitation = daily['precipitation_probability_max'][i]
+        code = daily['weathercode'][i]
+        weather_emo = weather_codes.get(code, "نامشخص")
+        
+        future_text += f"{date_jalali[8:]}: ⬇️{temp_min}° ⬆️{temp_max}° {weather_emo} - {precipitation}%\n"
+    
+    return future_text
+
+
+def today_weather(input_user:str,days=1):
     lat, lon = input_user.split(',')
     latitude = float(lat)
     longitude = float(lon)
@@ -114,6 +129,9 @@ def today_weather(input_user:str):
     )
 
     data = requests.get(url).json()
-    return(format_today_weather(data))
-    
-    
+    if days ==1 :
+        return format_today_weather(data)
+    elif days <= 7:
+        return format_future_weather(data, days=days)
+    else :
+        return 'error'
