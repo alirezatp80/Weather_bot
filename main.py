@@ -1,6 +1,7 @@
 from app import client
 import asyncio
 from config import BOT_TOKEN
+from app import handlers 
 
 
 async def main():
