@@ -4,13 +4,19 @@ from app.text import welcome_text
 from app.buttons import submit_location_inline , main_menu , change_location
 from telethon.tl.custom.message import Message
 from app.utils import find_name_city
-
+from app.database import insert_user ,update_location
 
 
 manage_state = []
 
 @client.on(events.NewMessage(pattern='/start'))
 async def start(event: Message):
+   user = {
+       'id': event.sender_id,
+       'name': event.sender.first_name,
+       'location': None
+   }
+   insert_user(user['id'], user['name'], user['location'])
    await event.respond(welcome_text , buttons=submit_location_inline())
 
 @client.on(events.CallbackQuery(data='submit_location'))
@@ -29,6 +35,13 @@ async def handle_location(event:Message):
             city_name = find_name_city(lat,lon)
             await event.delete()
             await event.respond(f"مکان شما : {city_name}",buttons=main_menu())
+            location = f'{lat},{lon}'
+            user ={
+                'id': event.sender_id,
+                'name': event.sender.first_name,
+                'location': location
+            }
+            update_location(user['id'], user['location'])
             manage_state.pop()
         except:
             await event.delete()

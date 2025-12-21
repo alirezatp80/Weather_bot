@@ -1,6 +1,6 @@
 from telethon import TelegramClient
 from config import API_ID , API_HASH
-from database import create_table
+from app.database import create_table
 
 
 create_table()
