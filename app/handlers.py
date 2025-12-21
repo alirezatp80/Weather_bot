@@ -21,14 +21,29 @@ async def submit_location(event:events.CallbackQuery.Event):
     
 @client.on(events.NewMessage())
 async def handle_location(event:Message):
+    user_input = (event.message.text).strip()
     if (event.message.geo)and manage_state and('location_requested' == manage_state[-1]):
         try:
             lat = event.message.geo.lat
             lon = event.message.geo.long
             city_name = find_name_city(lat,lon)
             await event.delete()
-            await event.respond(f"مکان شما : {city_name}",buttons=Button.clear())
+            await event.respond(f"مکان شما : {city_name}",buttons=main_menu())
             manage_state.pop()
         except:
             await event.delete()
             await event.respond("خطا در پیدا کردن نام شهر. لطفاً دوباره تلاش کنید.",buttons=change_location())
+    if  user_input== 'موقعیت مکانی':
+        manage_state.append('location_requested')
+    elif user_input == 'امروز':
+        manage_state.append('today')
+    elif user_input == 'آینده':
+        manage_state.append('future')
+    elif user_input == 'راهنما':
+        manage_state.append('help')
+        
+@client.on(events.NewMessage())
+async def handle_mainmenu(event: Message):
+    if manage_state and manage_state[-1] == 'location_requested':
+        await event.delete()
+        await event.respond("لطفاً موقعیت مکانی خود را ارسال کنید.", buttons=change_location())
