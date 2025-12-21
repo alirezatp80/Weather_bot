@@ -13,13 +13,18 @@ def create_table():
         conn.commit()
         
 def insert_user(id , name , location):
-    with sqlite3.connect('users.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute('''
-                       INSERT INTO users(id, name, location)
-                       VALUES (?, ?, ?)
-                       ''', (id, name, location))
-        conn.commit()
+    user = select_user(id)
+    if user:
+        update_location(id, location)
+        update_name(id , name)
+    else:
+        with sqlite3.connect('users.db') as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                           INSERT INTO users(id, name, location)
+                           VALUES (?, ?, ?)
+                           ''', (id, name, location))
+            conn.commit()
 
 
 def select_user(id):
@@ -44,4 +49,11 @@ def update_location(id,newlocation):
                        """, (newlocation, id))
         conn.commit()
 
+def update_name(id, newname):
+    with sqlite3.connect('users.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+                       UPDATE users SET name = ? WHERE id = ?
+                       """, (newname, id))
+        conn.commit()
 
