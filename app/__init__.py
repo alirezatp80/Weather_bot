@@ -1,7 +1,7 @@
 from telethon import TelegramClient
 from config import API_ID , API_HASH
 from app.database import create_table
-
+import app.api_weather
 
 create_table()
 client = TelegramClient(

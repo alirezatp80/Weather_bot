@@ -4,8 +4,8 @@ from app.text import welcome_text
 from app.buttons import submit_location_inline , main_menu , change_location
 from telethon.tl.custom.message import Message
 from app.utils import find_name_city
-from app.database import insert_user ,update_location
-
+from app.database import insert_user ,update_location , select_user
+from app.api_weather import today_weather
 
 manage_state = []
 
@@ -60,3 +60,10 @@ async def handle_mainmenu(event: Message):
     if manage_state and manage_state[-1] == 'location_requested':
         await event.delete()
         await event.respond("لطفاً موقعیت مکانی خود را ارسال کنید.", buttons=change_location())
+    elif manage_state and manage_state[-1] == 'today':
+        user = select_user(event.sender_id)
+        if user and user[2] and user[2] != None:
+            text = today_weather(user[2])
+            await event.respond(text)
+        else:
+            await event.respond('sorry')
