@@ -4,9 +4,10 @@ from app.text import welcome_text , help_text
 from app.buttons import submit_location_inline , main_menu , change_location
 from telethon.tl.custom.message import Message
 from app.utils import find_name_city
-from app.database import insert_user ,update_location , select_user
+from app.database import insert_user ,update_location , select_user,select_alluser
 from app.api_weather import today_weather
-
+from datetime import datetime , timedelta
+from asyncio import sleep
 manage_state = []
 
 @client.on(events.NewMessage(pattern='/start'))
@@ -83,8 +84,37 @@ async def handle_mainmenu(event: Message):
     
     else :
        if manage_state:
-            print('ho')
             await event.respond('خطا لطفا یک گزینه انتخاب کنید ')
         
             
-        
+async def Send_today( ):
+    while True:
+        now = datetime.now()
+        send_time = datetime.now() + timedelta(seconds=10)
+        delay = (send_time - now ).total_seconds()
+
+
+        if delay > 0:
+            await sleep(delay)
+
+
+        users = select_alluser()
+        for user in users:
+            location = user[2]
+            if location != None:
+                text_weather= today_weather(location)
+                try :
+                    await client.send_message(
+                        user[0],
+                        text_weather
+                    )
+                    await sleep(0.5)
+                except:
+                    print('error')
+            else:
+                await client.send_message(
+                    user[0],
+                    'you dont have location'
+                )
+        await sleep(60)
+
