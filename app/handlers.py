@@ -1,6 +1,6 @@
 from telethon import events , Button
 from  app import client
-from app.text import welcome_text
+from app.text import welcome_text , help_text
 from app.buttons import submit_location_inline , main_menu , change_location
 from telethon.tl.custom.message import Message
 from app.utils import find_name_city
@@ -65,6 +65,7 @@ async def handle_mainmenu(event: Message):
         if user and user[2] and user[2] != None:
             text = today_weather(user[2])
             await event.respond(text)
+            manage_state.pop()
         else:
             await event.respond('sorry')
     elif manage_state and manage_state[-1] == 'future':
@@ -72,5 +73,18 @@ async def handle_mainmenu(event: Message):
         if user and user[2] and user[2] != None:
             text = today_weather(user[2], days=7)
             await event.respond(text)
+            manage_state.pop()
         else:
             await event.respond('sorry')
+            
+    elif manage_state and manage_state[-1] == 'help':
+        await event.respond(f'{help_text}')
+        manage_state.pop()
+    
+    else :
+       if manage_state:
+            print('ho')
+            await event.respond('خطا لطفا یک گزینه انتخاب کنید ')
+        
+            
+        
